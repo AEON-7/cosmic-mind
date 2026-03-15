@@ -83,27 +83,8 @@ services:
       syncthing:
         condition: service_healthy
 
-  # ==========================================================================
-  # External Site Server - Lightweight static file server for public site
-  # Serves brain.unhash.me via Cloudflare tunnel (no Caddy hop needed)
-  # Cloudflare handles TLS termination at the edge
-  # ==========================================================================
-  external-site:
-    image: caddy:2-alpine
-    container_name: secondbrain-external
-    restart: unless-stopped
-    volumes:
-      - /srv/appdata/secondbrain/output:/srv/output:ro
-      - ./Caddyfile.external:/etc/caddy/Caddyfile:ro
-    networks:
-      - secondbrain-internal
-      - tunnel-net
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+  # External site now served by WAF stack (/opt/stacks/waf/)
+  # sb-frontend-1 and sb-frontend-2 replace this container
 
 volumes:
   quartz-engine:
@@ -115,5 +96,4 @@ networks:
     driver: bridge
   core_net:
     external: true
-  tunnel-net:
-    external: true
+  # tunnel-net removed — external traffic now handled by WAF stack
