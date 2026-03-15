@@ -1,0 +1,119 @@
+services:
+  # ==========================================================================
+  # Quartz Builder - Ephemeral build service
+  # Builds static HTML from the vault. Not a long-running daemon.
+  # Usage: docker compose run --rm quartz-builder
+  # ==========================================================================
+  quartz-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.builder
+    container_name: secondbrain-builder
+    volumes:
+      - /srv/appdata/secondbrain/vault:/vault:ro
+      - /srv/appdata/secondbrain/output:/output
+      - /srv/appdata/secondbrain/staging:/staging
+      - quartz-engine:/app/quartz
+    environment:
+      - INTERNAL_DOMAIN=${INTERNAL_DOMAIN:-brain.lab.unhash.me}
+      - EXTERNAL_DOMAIN=${EXTERNAL_DOMAIN:-brain.unhash.me}
+      - BUILDS_TO_KEEP=${BUILDS_TO_KEEP:-5}
+    networks:
+      - secondbrain-internal
+    profiles:
+      - build
+    restart: "no"
+
+  # ==========================================================================
+  # Syncthing - Real-time vault sync across devices
+  # Web UI: sync.lab.unhash.me (via Caddy + Authentik)
+  # ==========================================================================
+  syncthing:
+    image: lscr.io/linuxserver/syncthing:latest
+    container_name: secondbrain-syncthing
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /srv/appdata/secondbrain/syncthing:/config
+      - /srv/appdata/secondbrain/vault:/vault
+      - /pool/media/books:/books
+    ports:
+      # Peer sync ports - must be exposed directly for device discovery
+      - "22000:22000/tcp"
+      - "22000:22000/udp"
+      - "21027:21027/udp"
+    networks:
+      - secondbrain-internal
+      - core_net
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 8384"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ==========================================================================
+  # Vault Watcher - Detects changes and triggers builds
+  # Uses inotifywait to watch for .md file changes, then auto-commits
+  # and triggers a Quartz build via the builder service
+  # ==========================================================================
+  vault-watcher:
+    image: alpine:latest
+    container_name: secondbrain-watcher
+    restart: unless-stopped
+    entrypoint: /scripts/watch.sh
+    volumes:
+      - /srv/appdata/secondbrain/vault:/vault
+      - /srv/appdata/secondbrain/output:/output
+      - /srv/appdata/secondbrain/staging:/staging
+      - quartz-engine:/app/quartz
+      - ./scripts:/scripts:ro
+      - ./static:/static-assets:ro
+    environment:
+      - WATCH_INTERVAL=${WATCH_INTERVAL:-60}
+      - INTERNAL_DOMAIN=${INTERNAL_DOMAIN:-brain.lab.unhash.me}
+      - EXTERNAL_DOMAIN=${EXTERNAL_DOMAIN:-brain.unhash.me}
+      - BUILDS_TO_KEEP=${BUILDS_TO_KEEP:-5}
+    networks:
+      - secondbrain-internal
+    depends_on:
+      syncthing:
+        condition: service_healthy
+
+  # ==========================================================================
+  # External Site Server - Lightweight static file server for public site
+  # Serves brain.unhash.me via Cloudflare tunnel (no Caddy hop needed)
+  # Cloudflare handles TLS termination at the edge
+  # ==========================================================================
+  external-site:
+    image: caddy:2-alpine
+    container_name: secondbrain-external
+    restart: unless-stopped
+    volumes:
+      - /srv/appdata/secondbrain/output:/srv/output:ro
+      - ./Caddyfile.external:/etc/caddy/Caddyfile:ro
+    networks:
+      - secondbrain-internal
+      - tunnel-net
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  quartz-engine:
+    name: secondbrain-quartz-engine
+
+networks:
+  secondbrain-internal:
+    name: secondbrain-internal
+    driver: bridge
+  core_net:
+    external: true
+  tunnel-net:
+    external: true

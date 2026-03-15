@@ -1,0 +1,74 @@
+:8080 {
+	root * /srv/output/external
+	try_files {path} {path}.html {path}/index.html
+	file_server {
+		precompressed gzip
+	}
+	encode gzip
+
+	# === Cache: Fonts (rarely change, safe to cache long) ===
+	@fonts path *.woff *.woff2 *.ttf
+	header @fonts Cache-Control "public, max-age=2592000"
+
+	# === Cache: JS/CSS (Quartz hashes these, new build = new URL) ===
+	@code path *.js *.css
+	header @code Cache-Control "public, max-age=86400, must-revalidate"
+
+	# === Cache: Images in /static/ (logo, favicons — may change on redesign) ===
+	@staticimg path /static/*.png /static/*.ico /static/*.jpg /static/*.svg
+	header @staticimg Cache-Control "public, max-age=3600, must-revalidate"
+
+	# === Cache: Other images (content images, unlikely to change) ===
+	@images path *.png *.jpg *.jpeg *.gif *.svg *.webp *.ico
+	header @images Cache-Control "public, max-age=604800, must-revalidate"
+
+	# === Cache: HTML pages (short TTL for content freshness) ===
+	@html path *.html
+	header @html Cache-Control "public, max-age=300, must-revalidate"
+
+	# === Cache: JSON index (search + graph data) ===
+	@json path *.json
+	header @json Cache-Control "public, max-age=600, must-revalidate"
+
+	# === Security Headers ===
+	header {
+		# Prevent clickjacking
+		X-Frame-Options "DENY"
+
+		# Block MIME type sniffing
+		X-Content-Type-Options "nosniff"
+
+		# XSS protection (legacy browsers)
+		X-XSS-Protection "1; mode=block"
+
+		# Control referrer information
+		Referrer-Policy "strict-origin-when-cross-origin"
+
+		# HSTS - enforce HTTPS (Cloudflare handles TLS, but belt-and-suspenders)
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+		# Content Security Policy - strict for a static site
+		# Allows self-hosted resources, inline styles (Quartz needs them),
+		# Google Fonts, and blocks everything else
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'none'"
+
+		# Restrict browser features the site doesn't need
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
+
+		# Prevent search engines from caching sensitive pages
+		X-Robots-Tag "noarchive"
+
+		# Remove server identification
+		-Server
+	}
+
+	# Block common exploit paths
+	@blocked path /wp-admin/* /wp-login* /wp-content/* /.env /.git/* /xmlrpc.php /cgi-bin/* /phpmyadmin/* /admin/* /.well-known/acme-challenge/*
+	respond @blocked 404
+
+	handle_errors {
+		@404 expression {http.error.status_code} == 404
+		rewrite @404 /404.html
+		file_server
+	}
+}

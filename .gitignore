@@ -1,0 +1,21 @@
+# Secrets
+.env
+
+# WAF live configuration (use .example files as templates)
+config/coraza/coraza.conf
+config/coraza/crs-setup.conf
+config/coraza/positive-security.conf
+config/coraza/custom-exclusions.conf
+config/crowdsec/acquis.yaml
+config/crowdsec/profiles.yaml
+
+# Data directories
+**/data/
+**/db/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
