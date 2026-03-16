@@ -76,8 +76,8 @@ services:
       - ./static:/static-assets:ro
     environment:
       - WATCH_INTERVAL=${WATCH_INTERVAL:-60}
-      - INTERNAL_DOMAIN=${INTERNAL_DOMAIN:-brain.lab.unhash.me}
-      - EXTERNAL_DOMAIN=${EXTERNAL_DOMAIN:-brain.unhash.me}
+      - INTERNAL_DOMAIN=${INTERNAL_DOMAIN:-brain.lab.example.com}
+      - EXTERNAL_DOMAIN=${EXTERNAL_DOMAIN:-example.com}
       - BUILDS_TO_KEEP=${BUILDS_TO_KEEP:-5}
     networks:
       - secondbrain-internal

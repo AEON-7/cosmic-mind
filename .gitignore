@@ -20,3 +20,7 @@ config/crowdsec/profiles.yaml
 .DS_Store
 Thumbs.db
 SecondBrain_Deployment_Spec.local.md
+
+# Generated configs (use .template files as source of truth)
+quartz.config.ts
+quartz.config.external.ts
