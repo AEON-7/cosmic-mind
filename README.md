@@ -141,3 +141,17 @@ docker compose run --rm quartz-builder
 ## License
 
 MIT
+
+---
+
+## Support This Project
+
+If you find this useful, consider buying us a coffee in crypto. Every contribution fuels development and keeps open source projects alive.
+
+| Currency | Address |
+|----------|---------|
+| **Monero (XMR)** | `86LCcmhZRchdF1V6vQ1bNKYEr5jdf5dSRTkFLDr7qFYzQeuvBiqzgwa3dpCfTaw3S45QFy8DoqBBfA28CCwsvCFSHrMsLAy` |
+| **Bitcoin (BTC)** | `bc1qc7n9flvr5dyhddxzjy7dpa0mng36xcrar8t4r9` |
+| **Ethereum (ETH)** | `0x1512667F6D61454ad531d2E45C0a5d1fd82D0500` |
+
+No amount is too small. Thank you for your support.
