@@ -123,6 +123,17 @@ validate_vault
 
 mkdir -p "$BUILDS_DIR"
 
+# --- Generate configs from templates ---
+# If .template files exist, use envsubst to inject environment variables
+if [ -f "/app/quartz.config.ts.template" ]; then
+    log_info "Generating quartz.config.ts from template"
+    envsubst '${INTERNAL_DOMAIN} ${SITE_TITLE_INTERNAL}' < /app/quartz.config.ts.template > "$QUARTZ_DIR/quartz.config.ts"
+fi
+if [ -f "/app/quartz.config.external.ts.template" ]; then
+    log_info "Generating quartz.config.external.ts from template"
+    envsubst '${EXTERNAL_DOMAIN} ${SITE_TITLE_EXTERNAL}' < /app/quartz.config.external.ts.template > "$QUARTZ_DIR/quartz.config.external.ts"
+fi
+
 # --- Internal Build (full vault) ---
 log_info "--- Building Internal Site ---"
 
