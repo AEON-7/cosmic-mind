@@ -1,5 +1,5 @@
 # Second Brain — Deployment Specification (Revised)
-# Infrastructure: onyx (192.168.1.80) | brain.lab.unhash.me (internal) | brain.unhash.me (external)
+# Infrastructure: <your-server> (<your-server-ip>) | <internal-domain> (internal) | <external-domain> (external)
 ---
 
 ## PROJECT OVERVIEW
@@ -20,8 +20,8 @@ A self-hosted, AI-augmented "second brain" knowledge management system that:
 VAULT (/srv/appdata/secondbrain/vault/ - Git-backed .md files)
     |
     +---> Quartz Builder (ephemeral container)
-    |         |---> Internal build → Caddy file_server → brain.lab.unhash.me
-    |         +---> External build (filtered) → Caddy file_server → brain.unhash.me
+    |         |---> Internal build → Caddy file_server → <internal-domain>
+    |         +---> External build (filtered) → Caddy file_server → <external-domain>
     |
     +---> Vault Watcher (polls for changes, auto-commits, triggers builds)
     |
@@ -40,7 +40,7 @@ VAULT (/srv/appdata/secondbrain/vault/ - Git-backed .md files)
 
 1. **Caddy serves static files directly** — No Nginx. Quartz builds to `/srv/appdata/secondbrain/output/` which is volume-mounted into Caddy. Caddy's `file_server` is optimal for static content with built-in compression and caching.
 
-2. **Cloudflare tunnels for external access** — `brain.unhash.me` routes through the existing Cloudflare Zero Trust tunnel to Caddy. No direct port exposure.
+2. **Cloudflare tunnels for external access** — `<external-domain>` routes through the existing Cloudflare Zero Trust tunnel to Caddy. No direct port exposure.
 
 3. **Atomic directory swap for zero-downtime deploys** — Builds output to timestamped directories. A symlink swap (`ln -sfn`) is atomic at the filesystem level. Caddy follows the symlink with no restart needed.
 
@@ -152,7 +152,7 @@ Add to `/srv/appdata/proxy/Caddyfile`:
 # SECOND BRAIN - Internal (full vault, Authentik-protected)
 # =============================================================================
 
-brain.lab.unhash.me {
+<internal-domain> {
 	import cloudflare_tls
 	import encode
 	import security_headers
@@ -176,7 +176,7 @@ brain.lab.unhash.me {
 # No auth - content is pre-filtered to publish: public only
 # =============================================================================
 
-brain.unhash.me {
+<external-domain> {
 	tls {
 		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
 		resolvers 1.1.1.1 1.0.0.1
@@ -199,7 +199,7 @@ brain.unhash.me {
 }
 
 # Syncthing Web UI - protected
-sync.lab.unhash.me {
+<sync-domain> {
 	import cloudflare_tls
 	import encode
 	import security_headers
@@ -222,15 +222,15 @@ docker compose -f /opt/stacks/proxy/docker-compose.yml restart caddy
 
 ## PHASE 4: CLOUDFLARE TUNNEL CONFIGURATION (MANUAL STEP)
 
-### For brain.lab.unhash.me
-Already covered by the `*.lab.unhash.me` wildcard tunnel routing. No action needed.
+### For <internal-domain>
+Already covered by the `*.<your-lab-domain>` wildcard tunnel routing. No action needed.
 
-### For brain.unhash.me (external public site)
+### For <external-domain> (external public site)
 In Cloudflare Zero Trust dashboard:
 1. Go to Networks → Tunnels → select the main lab tunnel
 2. Add a Public Hostname:
-   - Subdomain: (blank for bare domain, or "brain" if using brain.unhash.me)
-   - Domain: `unhash.me`
+   - Subdomain: (blank for bare domain, or "brain" if using <external-domain>)
+   - Domain: `<your-domain>`
    - Service: `http://caddy:80`
 3. Ensure the `cloudflared` container can reach Caddy (both accessible via Docker networking)
 
@@ -242,8 +242,8 @@ In Cloudflare Zero Trust dashboard:
 
 After `docker compose up -d syncthing`:
 
-1. Access Syncthing UI at `sync.lab.unhash.me` (after Caddy config applied)
-   or temporarily at `http://onyx:8384` (not exposed by default - access via Portainer exec or add a temp port)
+1. Access Syncthing UI at `<sync-domain>` (after Caddy config applied)
+   or temporarily at `http://<your-server>:8384` (not exposed by default - access via Portainer exec or add a temp port)
 2. Add folder: path=/vault, ID=secondbrain-vault, watch=enabled
 3. Ignore patterns: `.git`, `.obsidian/workspace*.json`, `.trash`
 4. On client devices: install Syncthing, add server as remote device, share `secondbrain-vault` folder
@@ -323,10 +323,10 @@ Execute in order, verify at each step:
 - [ ] `docker compose run --rm quartz-builder` builds without errors
 - [ ] `/srv/appdata/secondbrain/output/internal/index.html` exists
 - [ ] Caddy volume mount added, Caddyfile updated, Caddy restarted
-- [ ] `curl -I https://brain.lab.unhash.me` returns 200
+- [ ] `curl -I https://<internal-domain>` returns 200
 - [ ] Authentik forward_auth redirects to login, then serves the site
-- [ ] Cloudflare tunnel route added for `brain.unhash.me`
-- [ ] `curl -I https://brain.unhash.me` returns 200 (public, no auth)
+- [ ] Cloudflare tunnel route added for `<external-domain>`
+- [ ] `curl -I https://<external-domain>` returns 200 (public, no auth)
 - [ ] Syncthing UI accessible, vault folder shared
 - [ ] Client device syncs a test file to the server
 - [ ] Watcher detects the new file and triggers rebuild
@@ -349,7 +349,7 @@ Execute in order, verify at each step:
                        |
                     Caddy (core_net)
                    /        \
-    brain.lab.unhash.me    brain.unhash.me
+    <internal-domain>    <external-domain>
     (forward_auth)         (public, no auth)
          |                      |
     file_server             file_server
@@ -371,5 +371,5 @@ Execute in order, verify at each step:
 
 ---
 
-*Revised: March 13, 2026 | For onyx homelab server*
+*Revised: March 13, 2026 | For <your-server> homelab server*
 *Replaces original spec: corrected for Caddy (not Nginx), Cloudflare tunnels, OpenClaw AI (not Ollama/Khoj), server conventions*

@@ -19,3 +19,4 @@ config/crowdsec/profiles.yaml
 # OS files
 .DS_Store
 Thumbs.db
+SecondBrain_Deployment_Spec.local.md
