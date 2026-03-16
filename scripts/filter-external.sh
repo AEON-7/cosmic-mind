@@ -21,15 +21,19 @@ mkdir -p "$STAGING_DIR"
 published=0
 
 # Find markdown files with publish: public or publish: external in frontmatter
-find "$VAULT_DIR" -name "*.md" -type f | while read -r file; do
+# Use temp file instead of pipe to avoid head/read stdin conflicts
+_md_files=$(mktemp)
+find "$VAULT_DIR" -name "*.md" -type f > "$_md_files"
+while IFS= read -r file; do
     # Check the first 50 lines for frontmatter publish directive
-    if head -50 "$file" | grep -qE '^publish:\s*(public|external)'; then
+    if grep -qm1 -E '^publish:\s*(public|external)' "$file"; then
         rel_path="${file#"$VAULT_DIR"/}"
         dest_dir="$STAGING_DIR/$(dirname "$rel_path")"
         mkdir -p "$dest_dir"
         cp "$file" "$STAGING_DIR/$rel_path"
     fi
-done
+done < "$_md_files"
+rm -f "$_md_files"
 
 # Copy assets only from directories that contain published markdown files
 # (avoids copying multi-GB openclaw-workspace media into the external build)
@@ -221,6 +225,10 @@ The ideas that recur across traditions — the conceptual architecture of the pe
 
 ### Discovery & Context
 - [[philosophy/concepts/nag-hammadi|Nag Hammadi — The Discovery That Changed Everything]]
+
+---
+
+**[[support|Support This Project]]** — If this site resonates, consider a small crypto contribution to keep the library growing.
 
 ---
 

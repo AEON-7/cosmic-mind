@@ -15,8 +15,10 @@ services:
       - /srv/appdata/secondbrain/staging:/staging
       - quartz-engine:/app/quartz
     environment:
-      - INTERNAL_DOMAIN=${INTERNAL_DOMAIN:-brain.lab.unhash.me}
-      - EXTERNAL_DOMAIN=${EXTERNAL_DOMAIN:-brain.unhash.me}
+      - INTERNAL_DOMAIN=${INTERNAL_DOMAIN:-brain.lab.example.com}
+      - EXTERNAL_DOMAIN=${EXTERNAL_DOMAIN:-example.com}
+      - SITE_TITLE_INTERNAL=${SITE_TITLE_INTERNAL:-Second Brain}
+      - SITE_TITLE_EXTERNAL=${SITE_TITLE_EXTERNAL:-Cosmic Mind}
       - BUILDS_TO_KEEP=${BUILDS_TO_KEEP:-5}
     networks:
       - secondbrain-internal

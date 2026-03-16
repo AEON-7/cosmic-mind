@@ -7,7 +7,7 @@
 
 FROM node:22-alpine AS builder
 
-RUN apk add --no-cache git bash curl
+RUN apk add --no-cache git bash curl gettext
 
 WORKDIR /app
 
@@ -17,9 +17,13 @@ RUN git clone --depth 1 --branch cosmic-mind https://github.com/AEON-7/quartz.gi
     && cd quartz \
     && npm ci
 
-# Copy build configs and scripts
+# Copy build configs (static fallbacks) and templates
 COPY quartz.config.ts /app/quartz/quartz.config.ts
 COPY quartz.config.external.ts /app/quartz/quartz.config.external.ts
+COPY quartz.config.ts.template /app/quartz.config.ts.template
+COPY quartz.config.external.ts.template /app/quartz.config.external.ts.template
+
+# Copy build scripts
 COPY scripts/build.sh /app/build.sh
 COPY scripts/filter-external.sh /app/filter-external.sh
 RUN chmod +x /app/build.sh /app/filter-external.sh
