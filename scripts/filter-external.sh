@@ -80,6 +80,7 @@ Recorded philosophical conversations — real-time explorations of ideas between
 
 - [[philosophy/dialogue-on-the-divine-self|Dialogue on the Divine Self — Part I: The Mirror Revelation]]
 - [[philosophy/dialogue-on-the-divine-self-pt2|Dialogue on the Divine Self — Part II: The Architecture of Becoming]]
+- [[philosophy/dialogue-on-synchronicity|Dialogue on Synchronicity — The Golden Scarab]]
 
 ---
 
