@@ -1,5 +1,7 @@
 # Cosmic Mind
 
+
+[![☕ Tips](https://img.shields.io/badge/%E2%98%95_Tips-Support_the_work-ff5e5b?style=flat)](https://github.com/AEON-7/AEON-7#-support-the-work)
 A security and resiliency focused deployment of the [Quartz](https://quartz.jzhao.xyz/) web app. A place to build your second mind and share it with the world.
 
 **Live site:** [as-within-so-without.com](https://as-within-so-without.com)
@@ -155,3 +157,38 @@ If you find this useful, consider buying us a coffee in crypto. Every contributi
 | **Ethereum (ETH)** | `0x1512667F6D61454ad531d2E45C0a5d1fd82D0500` |
 
 No amount is too small. Thank you for your support.
+
+---
+
+## ☕ Support the work
+
+If this release has been useful, tips are deeply appreciated — they go directly toward more compute, more models, and more open releases.
+
+<table align="center">
+  <tr>
+    <td align="center" width="50%">
+      <strong>₿ Bitcoin (BTC)</strong><br/>
+      <img src="https://raw.githubusercontent.com/AEON-7/AEON-7/main/assets/qr/btc.png" alt="BTC QR" width="200"/><br/>
+      <sub><code>bc1q09xmzn00q4z3c5raene0f3pzn9d9pvawfm0py4</code></sub>
+    </td>
+    <td align="center" width="50%">
+      <strong>Ξ Ethereum (ETH)</strong><br/>
+      <img src="https://raw.githubusercontent.com/AEON-7/AEON-7/main/assets/qr/eth.png" alt="ETH QR" width="200"/><br/>
+      <sub><code>0x1512667F6D61454ad531d2E45C0a5d1fd82D0500</code></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <strong>◎ Solana (SOL)</strong><br/>
+      <img src="https://raw.githubusercontent.com/AEON-7/AEON-7/main/assets/qr/sol.png" alt="SOL QR" width="200"/><br/>
+      <sub><code>DgQsjHdAnT5PNLQTNpJdpLS3tYGpVcsHQCkpoiAKsw8t</code></sub>
+    </td>
+    <td align="center" width="50%">
+      <strong>ⓜ Monero (XMR)</strong><br/>
+      <img src="https://raw.githubusercontent.com/AEON-7/AEON-7/main/assets/qr/xmr.png" alt="XMR QR" width="200"/><br/>
+      <sub><code>836XrSKw4R76vNi3QPJ5Fa9ugcyvE2cWmKSPv3AhpTNNKvqP8v5ba9JRL4Vh7UnFNjDz3E2GXZDVVenu3rkZaNdUFhjAvgd</code></sub>
+    </td>
+  </tr>
+</table>
+
+> **Ethereum L2s (Base, Arbitrum, Optimism, Polygon, etc.) and EVM-compatible tokens** can be sent to the same Ethereum address.
